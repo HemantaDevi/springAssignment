@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www/thymeleaf.org">
+<body>
+<form th:action="@{/allocating}" th:method="post">
+<table>
+<tr>
+<td>Registration Number:</td>
+<td><input type="text" th:value="${car.registrationNumber}" name="registrationNumber" readonly/></td>
+</tr>
+<tr>
+<td>Price Per Day:</td>
+<td><input type="text" th:value="${car.pricePerDay}" name="pricePerDay" readonly/></td>
+</tr>
+<tr>
+<td>Customer:</td>
+<th>
+<select name="user">
+  <option th:each="user : ${users}" 
+          th:value="${user.nationalId}" 
+          th:text="${user.nationalId}"></option>
+</select>
+</th>
+</tr>
+<tr>
+<td>Start Date:</td>
+<td><input type="date" name="startDate" required/></td>
+</tr>
+<tr>
+<td>End Date:</td>
+<td><input type="date" name="endDate" required/></td>
+</tr>
+</table>
+<input type="submit" value="submit"/>
+</form><br><br>
+<input type="button" class="btn btn-info" value="Go to home page" onclick="location.href = '/'"><br><hr><br>
+</body>
+</html>
