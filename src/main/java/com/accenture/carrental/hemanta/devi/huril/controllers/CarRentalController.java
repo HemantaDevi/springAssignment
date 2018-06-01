@@ -85,6 +85,8 @@ public class CarRentalController {
 		}
 		List<Car> cars =carService.ListAllCars();
 		model.addAttribute("cars", cars);
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "allCars";
 	}
 	 
@@ -103,8 +105,10 @@ public class CarRentalController {
 		}
 	 @Secured("ROLE_ADMIN")
 	 @PostMapping("/rentedBy")
-	 public String rentedBy(@RequestParam String nationalId, Model model) {
+	 public String rentedBy(@RequestParam String nationalId, Model model,HttpServletRequest request) {
 		 model.addAttribute("cars", rentalService.carRentedByCustomer(nationalId));
+		 String hostNport = request.getServerName() + ":" + request.getServerPort();
+		 model.addAttribute("hostNport", hostNport);
 			return "allCars";
 	}
 	 

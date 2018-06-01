@@ -40,7 +40,7 @@ table {
 			</div>
 
 		</div>
-
+	    <p style="color: red" th:text="${errMsg}"></p>
 
 		<table class="table">
 			<thead class="bg-dark text-light">
@@ -61,9 +61,14 @@ table {
 					<td th:text="${car.model}"></td>
 					<td th:text="${car.pricePerDay}"></td>
 					<td th:text="${car.year}"></td>
-					<td><a th:href="@{|update/${car.registrationNumber}|}" class="btn btn-sm btn-outline-primary">Update
+					<td><a 				
+					th:href="@{|http://${hostNport}/update/${car.registrationNumber}|}"
+		
+					class="btn btn-sm btn-outline-primary">Update
 							Details</a></td>
-					<td><a th:href="@{|delete/${car.registrationNumber}|}" class="btn btn-sm btn-outline-primary">Delete
+					<td><a 
+					th:href="@{|http://${hostNport}/delete/${car.registrationNumber}|}"
+					class="btn btn-sm btn-outline-primary">Delete
 							Details</a></td>
 				</tr>
 			</tbody>

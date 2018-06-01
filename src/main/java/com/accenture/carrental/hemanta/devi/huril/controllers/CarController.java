@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,7 @@ import com.accenture.carrental.hemanta.devi.huril.api.dtos.CarRentalDto;
 import com.accenture.carrental.hemanta.devi.huril.entities.Car;
 import com.accenture.carrental.hemanta.devi.huril.entities.CarRental;
 import com.accenture.carrental.hemanta.devi.huril.entities.User;
+import com.accenture.carrental.hemanta.devi.huril.exceptions.CarRegNumAlreadyExistException;
 import com.accenture.carrental.hemanta.devi.huril.exceptions.InvalidDateException;
 import com.accenture.carrental.hemanta.devi.huril.services.CarService;
 import com.accenture.carrental.hemanta.devi.huril.services.RentalService;
@@ -49,9 +52,11 @@ public class CarController {
 
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/showAll")
-	public String ListOfCars(Model model) {
+	public String ListOfCars(Model model, HttpServletRequest request) {
 		List<Car> cars = carService.ListAllCars();
 		model.addAttribute("cars", cars);
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "allCars";
 	}
 
@@ -65,14 +70,23 @@ public class CarController {
 	@PostMapping("/creating")
 	public String createCar(@RequestParam("registrationNumber") String registrationNumber,
 			@RequestParam("carModel") String carModel, @RequestParam("pricePerDay") double pricePerDay,
-			@RequestParam("year") int year, Model model) {
+			@RequestParam("year") int year, Model model, HttpServletRequest request) {
 		CarDTO dto = new CarDTO();
 		dto.setRegistrationNumber(registrationNumber);
 		dto.setModel(carModel);
 		dto.setPricePerDay(pricePerDay);
 		dto.setYear(year);
-		carService.addCar(dto);
+
+			try {
+				carService.addCar(dto);
+			} catch (CarRegNumAlreadyExistException e) {
+					model.addAttribute("error", e.getMessage());
+				return "create";
+			}
+
 		model.addAttribute("cars", carService.ListAllCars());
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "allCars";
 	}
 
@@ -88,22 +102,29 @@ public class CarController {
 	@PostMapping("/updating")
 	public String updating(@RequestParam("registrationNumber") String registrationNumber,
 			@RequestParam("carModel") String carModel, @RequestParam("pricePerDay") double pricePerDay,
-			@RequestParam("year") int year, Model model) {
+			@RequestParam("year") int year, Model model, HttpServletRequest request) {
 		Car car = new Car();
 		car.setPricePerDay(pricePerDay);
 		car.setYear(year);
 		car.setRegistrationNumber(registrationNumber);
 		carService.updateCar(car);
 		model.addAttribute("cars", carService.ListAllCars());
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "allCars";
 	}
 
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/delete/{registrationNumber}")
-	public String deleteCar(@PathVariable String registrationNumber, Model model) {
-		carService.deleteCar(registrationNumber);
-		model.addAttribute("cars", carService.ListAllCars());
-		return "allCars";
+	public String deleteCar(@PathVariable String registrationNumber, Model model,HttpServletRequest request) {
+		if(carService.deleteCar(registrationNumber)==-1) {
+			model.addAttribute("errMsg","Car is rented. Cannot be deleted");
+			//do not redirect
+		}
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
+			model.addAttribute("cars", carService.ListAllCars());
+			return "allCars";
 	}
 
 	@Secured("ROLE_ADMIN")
@@ -114,12 +135,14 @@ public class CarController {
 
 	@Secured("ROLE_ADMIN")
 	@PostMapping("/searching")
-	public String searchingTheCar(@RequestParam("registrationNumber") String registrationNumber, Model model) {
+	public String searchingTheCar(@RequestParam("registrationNumber") String registrationNumber, Model model, HttpServletRequest request) {
 		Car car = carService.findByRegistrationNumber(registrationNumber);
 		if (car != null) {
 			List<Car> cars = new ArrayList<>();
 			cars.add(car);
 			model.addAttribute("cars", cars);
+			String hostNport = request.getServerName() + ":" + request.getServerPort();
+			model.addAttribute("hostNport", hostNport);
 			return "allCars";
 		} else {
 			return "carFromRegistration";

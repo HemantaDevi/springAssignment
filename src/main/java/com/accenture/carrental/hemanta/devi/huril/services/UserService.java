@@ -78,9 +78,9 @@ public class UserService {
 		if (findAllCustomers(RoleType.ADMIN).isEmpty()) {
 
 			User user2 = new User();
-			user2.setNationalId("Brandi");
-			user2.setName("Brandi");
-			user2.setPassword(bCryptPasswordEncoder.encode("54321"));
+			user2.setNationalId("admin");
+			user2.setName("admin");
+			user2.setPassword(bCryptPasswordEncoder.encode("admin"));
 			user2.setRole(RoleType.ADMIN);
 			user2.setSex("Male");
 			user2.setDateOfBirth(LocalDate.of(1993, 03, 22));
@@ -96,9 +96,9 @@ public class UserService {
 		if (findAllCustomers(RoleType.CUSTOMER).isEmpty()) {
 
 			User user1 = new User();
-			user1.setNationalId("James");
-			user1.setName("James Milly");
-			user1.setPassword(bCryptPasswordEncoder.encode("12345"));
+			user1.setNationalId("customer");
+			user1.setName("customer");
+			user1.setPassword(bCryptPasswordEncoder.encode("customer"));
 			user1.setRole(RoleType.CUSTOMER);
 			user1.setSex("Male");
 			user1.setDateOfBirth(LocalDate.of(1990, 12, 22));

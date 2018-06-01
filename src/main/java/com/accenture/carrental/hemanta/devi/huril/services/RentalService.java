@@ -43,12 +43,15 @@ public class RentalService {
 		return carRentalRepositories.save(rental);
 	}
 
-	// car rented for a specific period
-	public List<CarRental> RentedForSpecificPeriod() {
-		List<CarRental> carRental = new ArrayList<>();
-		carRentalRepositories.findAll().forEach(carRental::add);
-		return carRental;
-	}
+		// car rented for a specific period
+		public List<CarRental> RentedForSpecificPeriod() {
+			List<CarRental> carRental = new ArrayList<>();
+			List<CarRental> carRental2 = carRentalRepositories.findByReturned(true);
+			if(carRental2.isEmpty()) {
+				return carRental;
+			}
+			return carRental2;
+		} 
 
 	// Total amount rented for each car
 	public Double amountForCar(String registrationNumber) {
