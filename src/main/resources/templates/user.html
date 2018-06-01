@@ -48,8 +48,8 @@ table {
 <td th:text="${user.role}"></td>
 <td th:text="${user.sex}"></td>
 <td th:text="${user.dateOfBirth}"></td>
-<td><a th:href="@{|updateUser/${user.nationalId}|}" class="btn btn-sm btn-outline-primary">Update User Details</a></td>
-<td><a th:href="@{|deleteUser/${user.nationalId}|}" class="btn btn-sm btn-outline-primary">Delete User</a></td>
+<td><a th:href="@{|http://${hostNport}/updateUser/${user.nationalId}|}" class="btn btn-sm btn-outline-primary">Update User Details</a></td>
+<td><a th:href="@{|http://${hostNport}/deleteUser/${user.nationalId}|}" class="btn btn-sm btn-outline-primary">Delete User</a></td>
 </tr>
 </table><br>
 <input type="button" class="btn btn-success" value="Create Admin" onclick="location.href = '/createAdmin'">

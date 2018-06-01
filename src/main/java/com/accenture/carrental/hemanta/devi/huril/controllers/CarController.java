@@ -71,6 +71,11 @@ public class CarController {
 	public String createCar(@RequestParam("registrationNumber") String registrationNumber,
 			@RequestParam("carModel") String carModel, @RequestParam("pricePerDay") double pricePerDay,
 			@RequestParam("year") int year, Model model, HttpServletRequest request) {
+		LocalDate year1 = LocalDate.of(year, 01, 01);
+		LocalDate now = LocalDate.now();
+		if(now.isBefore(year1)) {
+			model.addAttribute("error", "Enter a valid date");
+		}
 		CarDTO dto = new CarDTO();
 		dto.setRegistrationNumber(registrationNumber);
 		dto.setModel(carModel);
@@ -119,7 +124,6 @@ public class CarController {
 	public String deleteCar(@PathVariable String registrationNumber, Model model,HttpServletRequest request) {
 		if(carService.deleteCar(registrationNumber)==-1) {
 			model.addAttribute("errMsg","Car is rented. Cannot be deleted");
-			//do not redirect
 		}
 		String hostNport = request.getServerName() + ":" + request.getServerPort();
 		model.addAttribute("hostNport", hostNport);

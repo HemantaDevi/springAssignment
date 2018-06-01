@@ -11,68 +11,89 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.accenture.carrental.hemanta.devi.huril.entities.CarRental;
 import com.accenture.carrental.hemanta.devi.huril.entities.User;
 import com.accenture.carrental.hemanta.devi.huril.entities.enums.RoleType;
 import com.accenture.carrental.hemanta.devi.huril.exceptions.NotInsertedException;
+import com.accenture.carrental.hemanta.devi.huril.repositories.CarRentalRepositories;
 import com.accenture.carrental.hemanta.devi.huril.repositories.UserRepository;
 
 @Transactional
 @Service
 public class UserService {
 	private final UserRepository userRepository;
+	private final CarRentalRepositories carRentalRepositories;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-	
+
 	@Autowired
-	public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-		super();
+	public UserService(UserRepository userRepository, CarRentalRepositories carRentalRepositories,
+			BCryptPasswordEncoder bCryptPasswordEncoder) {
 		this.userRepository = userRepository;
+		this.carRentalRepositories = carRentalRepositories;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
-	
-	public List<User> findAllCustomers(RoleType role){
+
+	public List<User> findAllCustomers(RoleType role) {
 		return userRepository.findByRole(role);
 	}
 
-	public List<User> findAllUsers(){
+	public List<User> findAllUsers() {
 		List<User> user = new ArrayList<>();
 		userRepository.findAll().forEach(user::add);
 		return user;
 	}
+
 	public User findUserByNationalId(String nationalId) {
 		return userRepository.findOneByNationalId(nationalId);
 	}
-	
+
 	public User createCustomer(User user) throws NotInsertedException {
-		if(userRepository.findOneByNationalId(user.getNationalId()) != null) {
+		if (userRepository.findOneByNationalId(user.getNationalId()) != null) {
 			throw new NotInsertedException("Customer already exist");
-		}else {
-		user.setRole(RoleType.CUSTOMER);
-		return userRepository.save(user);
+		} else {
+			user.setRole(RoleType.CUSTOMER);
+			return userRepository.save(user);
 		}
 	}
-	
+
 	public User CreateAdmin(User user) throws NotInsertedException {
-		if(userRepository.findOneByNationalId(user.getNationalId()) != null) {
+		if (userRepository.findOneByNationalId(user.getNationalId()) != null) {
 			throw new NotInsertedException("Admin already exist");
-		}else {
-		user.setRole(RoleType.ADMIN);
-		return userRepository.save(user);
+		} else {
+			user.setRole(RoleType.ADMIN);
+			return userRepository.save(user);
 		}
-}
-	
+	}
+
 	public User updateUser(User user) {
-		if(userRepository.findOneByNationalId(user.getNationalId()) != null) {
+		if (userRepository.findOneByNationalId(user.getNationalId()) != null) {
 			User user1 = userRepository.findOneByNationalId(user.getNationalId());
 			user1.setName(user.getName());
 			return userRepository.save(user1);
 		}
-		return null;	
+		return null;
+	}
+
+	private boolean checkIfFound(String nationalId) {
+		List<CarRental> carRentals = carRentalRepositories.findAll();
+		boolean found = false;
+		for (CarRental carRental : carRentals) {
+			if (carRental.getUser().getNationalId().equals(nationalId)) {
+				found = true;
+				break;
+			}
+		}
+		return found;
 	}
 
 	public int deleteUser(String nationalId) {
-		return userRepository.deleteByNationalId(nationalId);
+		if (checkIfFound(nationalId)) {
+			return -1;
+		} else {
+			return userRepository.deleteByNationalId(nationalId);
+		}
 	}
-	
+
 	@PostConstruct
 	public void initialise() {
 		if (findAllCustomers(RoleType.ADMIN).isEmpty()) {
@@ -90,7 +111,7 @@ public class UserService {
 			} catch (NotInsertedException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 
 		if (findAllCustomers(RoleType.CUSTOMER).isEmpty()) {

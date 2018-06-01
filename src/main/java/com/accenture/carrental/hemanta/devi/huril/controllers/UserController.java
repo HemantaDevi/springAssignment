@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
@@ -64,9 +66,11 @@ public class UserController {
 
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/user")
-	public String User(Model model) {
+	public String User(Model model,HttpServletRequest request) {
 		List<User> user = userService.findAllUsers();
 		model.addAttribute("users", user);
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "user";
 	}
 
@@ -80,7 +84,7 @@ public class UserController {
 	@PostMapping("/creatingAdmin")
 	public String creatingAdmin(@RequestParam("nationalId") String nationalId,
 			@RequestParam("password") String password, @RequestParam("name") String name,
-			@RequestParam("sex") String sex, @RequestParam("dateOfBirth") String Date, Model model) {
+			@RequestParam("sex") String sex, @RequestParam("dateOfBirth") String Date, Model model,HttpServletRequest request) {
 		User user = new User();
 		user.setNationalId(nationalId);
 		user.setPassword(bCryptPasswordEncoder.encode(password));
@@ -93,7 +97,8 @@ public class UserController {
 		} catch (NotInsertedException e) {
 			e.getMessage();
 		}
-		User(model);
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "user";
 	}
 
@@ -107,7 +112,7 @@ public class UserController {
 	@PostMapping("/creatingCustomer")
 	public String creatingCustomer(@RequestParam("nationalId") String nationalId,
 			@RequestParam("password") String password, @RequestParam("name") String name,
-			@RequestParam("sex") String sex, @RequestParam("dateOfBirth") String Date, Model model) {
+			@RequestParam("sex") String sex, @RequestParam("dateOfBirth") String Date, Model model,HttpServletRequest request) {
 		User user = new User();
 		user.setNationalId(nationalId);
 		user.setPassword(bCryptPasswordEncoder.encode(password));
@@ -120,23 +125,28 @@ public class UserController {
 		} catch (NotInsertedException e) {
 			e.getMessage();
 		}
-		User(model);
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "user";
 	}
 
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/showAdmin")
-	public String showAdmin(Model model) {
+	public String showAdmin(Model model, HttpServletRequest request) {
 		List<User> user = userService.findAllCustomers(RoleType.ADMIN);
 		model.addAttribute("users", user);
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "user";
 	}
 
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/showCustomer")
-	public String showCustomer(Model model) {
+	public String showCustomer(Model model,HttpServletRequest request) {
 		List<User> users = userService.findAllCustomers(RoleType.CUSTOMER);
 		model.addAttribute("users", users);
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "user";
 	}
 
@@ -151,18 +161,24 @@ public class UserController {
 	@Secured("ROLE_ADMIN")
 	@PostMapping("/updatingUser")
 	public String updating(@RequestParam("nationalId") String nationalId, @RequestParam("name") String name,
-			Model model) {
+			Model model,HttpServletRequest request) {
 		User user = new User();
 		user.setNationalId(nationalId);
 		user.setName(name);
 		userService.updateUser(user);
 		model.addAttribute("users", userService.findAllUsers());
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		return "user";
 	}
 
 	@GetMapping("/deleteUser/{nationalId}")
-	public String deleteUser(@PathVariable String nationalId, Model model) {
-		userService.deleteUser(nationalId);
+	public String deleteUser(@PathVariable String nationalId, Model model,HttpServletRequest request) {
+		if(userService.deleteUser(nationalId)==-1) {
+			model.addAttribute("errMsg","Car is rented. Cannot be deleted");
+		}
+		String hostNport = request.getServerName() + ":" + request.getServerPort();
+		model.addAttribute("hostNport", hostNport);
 		model.addAttribute("users", userService.findAllUsers());
 		return "user";
 	}
@@ -173,12 +189,14 @@ public class UserController {
 	}
 
 	@PostMapping("/searchingCustomer")
-	public String searchingTheCar(@RequestParam("nationalId") String nationalId, Model model) {
+	public String searchingTheCar(@RequestParam("nationalId") String nationalId, Model model,HttpServletRequest request) {
 		User user = userService.findUserByNationalId(nationalId);
 		if (user != null) {
 			List<User> users = new ArrayList<>();
 			users.add(user);
 			model.addAttribute("users", users);
+			String hostNport = request.getServerName() + ":" + request.getServerPort();
+			model.addAttribute("hostNport", hostNport);
 			return "user";
 		} else {
 			return "searchCustomer";
